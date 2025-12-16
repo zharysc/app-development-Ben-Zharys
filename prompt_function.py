@@ -43,11 +43,12 @@ def get_completion(prompt,model="gpt-4o-mini", temperature=0):
     )
     return response.choices[0].message.content
 
-def generate_chart_analysis_prompt(data_fetcher, id=None, csv_data='street_data/leicestershire_street.csv',word_limit=50,prompt_template=None):
+def generate_chart_analysis_summary(data_fetcher, id=None, csv_data='street_data/leicestershire_street.csv',word_limit=50,prompt_template=None):
     """
     Generates a prompt for the LLM to analyze a specific chart type based on provided data summary.
     Parameters:
-    data_fetcher (function): Function gives summary data based on the csv
+    data_fetcher (function): Function gives summary data based on the csv. Returns a DataFrame.
+    id (str): Optional identifier for specific data fetching
     csv_data (str): Path to the CSV data file
     Returns:
     summary (str): Generated summary from the LLM
@@ -78,6 +79,6 @@ if __name__ == "__main__":
     print("="*40)
     print("generate_chart_analysis_prompt test")
     from pie_top_3 import get_crime_types_summary
-    summary = generate_chart_analysis_prompt(data_fetcher=get_crime_types_summary, csv_data='street_data/leicestershire_street.csv', word_limit=30)
+    summary = generate_chart_analysis_summary(data_fetcher=get_crime_types_summary, csv_data='street_data/leicestershire_street.csv', word_limit=30)
     print(summary)
 

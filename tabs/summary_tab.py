@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 import numpy as np
 from .chart_summary_dic import chart_renderers
-from prompt_function import generate_chart_analysis_prompt
+from prompt_function import generate_chart_analysis_summary
 
 ## =======================================================================================================================================
 ## Summary Tab
@@ -47,7 +47,7 @@ def render_summary_tab():
                 summary_func = chart_renderers[chart_name]["summary"]
                 if summary_func:
                     # Call the summary function (you can pass arguments if needed)
-                    summary = generate_chart_analysis_prompt(summary_func)
+                    summary = generate_chart_analysis_summary(summary_func)
                     st.write(summary)
                 else:
                     st.write(f"This is a placeholder summary for the {chart_name}. Detailed insights will be generated here based on actual data analysis.")

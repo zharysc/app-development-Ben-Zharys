@@ -1,9 +1,12 @@
 from openai import OpenAI
 import os
 
-
 ## ====================================================================
 ## Function to get completion from LLM
+
+#TODO: Need to set api key in environment variable OPENAI_API_KEY  -- > setx OPENAI_API_KEY "sk-xxxxxxxxxxxxxxxx"
+# Do this in your terminal or command prompt
+
 ## ====================================================================
 
 def get_completion(prompt,model="gpt-4o-mini", temperature=0):
@@ -15,6 +18,9 @@ def get_completion(prompt,model="gpt-4o-mini", temperature=0):
     response (str): The response from the LLM
     """
     # API key setup
+
+    api_key = os.getenv("OPENAI_API_KEY")
+
     client = OpenAI(api_key=api_key)
 
     messages = [{"role": "user", "content": prompt}]

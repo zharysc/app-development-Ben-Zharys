@@ -3,6 +3,11 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from datetime import date
+from backend_files.pie_top_3 import get_crime_types_summary
+import matplotlib.pyplot as plt
+import seaborn as sns
+import uuid
+
 ## =======================================================================================
 
 ## ===== Placeholder chart generation functions
@@ -35,18 +40,26 @@ def render_secondary_time_series():
     st.line_chart(np.random.randn(10, 1), use_container_width=True)
 
 def render_crime_type_pie():
-    df = pd.DataFrame({
-        "Crime type": [
-            "Violence and sexual offences",
-            "Robbery",
-            "Burglary",
-            "Vehicle crime",
-        ],
-        "Percentage": [40, 30, 20, 10],
-    })
-    st.subheader("Pie Chart of Crime Types")
-    fig = px.pie(df, values="Percentage", names="Crime type", title="Crime Type Breakdown")
-    st.plotly_chart(fig, use_container_width=True)
+
+    df = get_crime_types_summary(id=None, csv_data='backend_files/street_data/leicestershire_street.csv')
+
+
+    palette = sns.color_palette("Set2", n_colors=len(df))  # Set2 is a popular Seaborn palette
+    palette = [f'rgb({int(r*255)},{int(g*255)},{int(b*255)})' for r, g, b in palette]
+
+    # Create interactive pie chart with Plotly
+    fig = px.pie(
+        df,
+        names='category',
+        values='percentage',
+        title='Crime Type Distribution',
+        color='category',         # assign colors by category
+        color_discrete_sequence=palette  # use Seaborn palette
+    )
+    random_key = str(uuid.uuid4())
+
+    st.plotly_chart(fig, use_container_width=True,key=random_key)
+
 
 def render_extra_line_chart():
     st.subheader("Extra Line Chart")

@@ -5,7 +5,7 @@ import sys
 
 # Adjust path to import scrapper module
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from scrapper import crime_index_countries
+from backend_files.scrapper import crime_index_countries
 
 ## =======================================================================================================================================
 ## Webscrapping Tab

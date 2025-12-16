@@ -43,23 +43,8 @@ def get_crime_types_summary(id = None, csv_data = None):
 
         return result
     
-def pie_chart_crime_types_summary(id = None, csv_data = None):
-    """
-    This takes summary data, generates a prompt for LLM to analyze the pie chart and returns the analysis.
-    Uses get_crime_types_summary function to get the summary data.
-    
-    
-    """
-    df_summary = get_crime_types_summary(id=id, csv_data=csv_data)
-
-    # Generating prompt for LLM
-    prompt = f"Analyze the following crime type distribution:\n{df_summary.to_string(index=False)}\nProvide insights on the top crime types and any notable observations."
-
-    # TODO: Define a function to send this prompt to LLM and get analysis
-    
-    return prompt
-
 
 if __name__ == "__main__":
-    df_summary = get_crime_types_summary(csv_data='leicestershire_street_level.csv')
+    # Test data table for pie chart
+    df_summary = get_crime_types_summary(csv_data='backend_files/street_data/leicestershire_street.csv')
     print(df_summary)

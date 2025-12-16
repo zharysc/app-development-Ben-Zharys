@@ -1,8 +1,16 @@
 from openai import OpenAI
+from dotenv import load_dotenv
 import os
 
 ## ====================================================================
 ## Function to get completion from LLM
+
+## Set your OpenAI API key here
+load_dotenv(dotenv_path=".env")
+
+api_key = os.getenv("OPENAI_API_KEY")
+if api_key is None:
+    raise ValueError("OPENAI_API_KEY not set in .env")
 
 #TODO: Need to set api key in environment variable OPENAI_API_KEY  -- > setx OPENAI_API_KEY "sk-xxxxxxxxxxxxxxxx"
 # Do this in your terminal or command prompt

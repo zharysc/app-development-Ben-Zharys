@@ -1,4 +1,5 @@
 import pandas as pd
+from prompt_function import get_completion
 ## ===================================================================================
 ## Pie chart of top 3 crime types
 #TODO: Function to plot pie chart
@@ -46,20 +47,28 @@ def get_crime_types_summary(id = None, csv_data = None):
 def pie_chart_crime_types_summary(id = None, csv_data = None):
     """
     This takes summary data, generates a prompt for LLM to analyze the pie chart and returns the analysis.
-    Uses get_crime_types_summary function to get the summary data.
     
     
     """
     df_summary = get_crime_types_summary(id=id, csv_data=csv_data)
 
     # Generating prompt for LLM
-    prompt = f"Analyze the following crime type distribution:\n{df_summary.to_string(index=False)}\nProvide insights on the top crime types and any notable observations."
+    prompt = f"Analyze the following crime type distribution:\n{df_summary.to_string(index=False)}\nProvide insights on the top crime types and any notable observations. Limit to 50 words."
 
     # TODO: Define a function to send this prompt to LLM and get analysis
+    summary = get_completion(prompt)
     
-    return prompt
+    return summary
 
 
 if __name__ == "__main__":
-    df_summary = get_crime_types_summary(csv_data='leicestershire_street_level.csv')
+    # Test data table for pie chart
+    df_summary = get_crime_types_summary(csv_data='street_data/leicestershire_street.csv')
     print(df_summary)
+
+    # Test LLM analysis of pie chart
+    analysis = pie_chart_crime_types_summary(csv_data='street_data/leicestershire_street.csv')
+    print("="*40)
+    print("LLM Analysis of Crime Types Distribution:")
+    print("="*40)
+    print(analysis)

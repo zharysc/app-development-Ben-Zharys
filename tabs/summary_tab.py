@@ -2,7 +2,8 @@ import streamlit as st
 from datetime import date
 import pandas as pd
 import numpy as np
-from chart_renders import chart_renderers, all_charts
+from .chart_summary_dic import chart_renderers
+from prompt_function import generate_chart_analysis_prompt
 
 ## =======================================================================================================================================
 ## Summary Tab
@@ -20,7 +21,7 @@ def render_summary_tab():
     # == Multi-select for choosing graphs ==
     chosen_charts = st.multiselect(
         "Choose up to 4 charts to display",
-        all_charts,
+        list(chart_renderers.keys()),
         # default=all_charts[:2], # Default picks first 4
         key = "summary_charts"  
         )
@@ -37,12 +38,19 @@ def render_summary_tab():
             # == Display chosen charts and summaries ==
 
             with col1:
-                chart_renderers[chart_name]()
+                chart_renderers[chart_name]["render"]()
 
 
+            # == Display chart summary ==
             with col2:
                 st.markdown(f"**{chart_name} Summary:**")
-                st.write(f"This is a placeholder summary for the {chart_name}. Detailed insights will be generated here based on actual data analysis.")
+                summary_func = chart_renderers[chart_name]["summary"]
+                if summary_func:
+                    # Call the summary function (you can pass arguments if needed)
+                    summary = generate_chart_analysis_prompt(summary_func)
+                    st.write(summary)
+                else:
+                    st.write(f"This is a placeholder summary for the {chart_name}. Detailed insights will be generated here based on actual data analysis.")
 
 if __name__ == "__main__":
     render_summary_tab()

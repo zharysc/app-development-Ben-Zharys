@@ -1,2 +1,8 @@
 .env
 zharys-test-note.ipynb
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

@@ -9,9 +9,9 @@
 # Imports
 # Import summary functions ===============
 # Pie chart
-from pie_top_3 import get_crime_types_summary
+from backend_files.pie_top_3 import get_crime_types_summary
 # Import chart rendering functions
-from chart_renders import (
+from frontend_files.chart_renders import (
     render_crime_hotspots_map,
     render_crime_over_time,
     render_secondary_time_series,

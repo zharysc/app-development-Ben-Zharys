@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 import numpy as np
 from .chart_summary_dic import chart_renderers
-from prompt_function import generate_chart_analysis_summary
+from backend_files.prompt_function import generate_chart_analysis_summary
 
 ## =======================================================================================================================================
 ## Summary Tab

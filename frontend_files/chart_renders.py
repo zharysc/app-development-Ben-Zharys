@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from datetime import date
-from pie_top_3 import get_crime_types_summary
+from backend_files.pie_top_3 import get_crime_types_summary
 import matplotlib.pyplot as plt
 import seaborn as sns
 import uuid
@@ -41,7 +41,7 @@ def render_secondary_time_series():
 
 def render_crime_type_pie():
 
-    df = get_crime_types_summary(id=None, csv_data='street_data/leicestershire_street.csv')
+    df = get_crime_types_summary(id=None, csv_data='backend_files/street_data/leicestershire_street.csv')
 
 
     palette = sns.color_palette("Set2", n_colors=len(df))  # Set2 is a popular Seaborn palette

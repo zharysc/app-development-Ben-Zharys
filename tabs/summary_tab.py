@@ -1,4 +1,7 @@
 import streamlit as st
+from datetime import date
+import pandas as pd
+import numpy as np
 from chart_renders import chart_renderers, all_charts
 
 ## =======================================================================================================================================
@@ -35,6 +38,7 @@ def render_summary_tab():
 
             with col1:
                 chart_renderers[chart_name]()
+
 
             with col2:
                 st.markdown(f"**{chart_name} Summary:**")

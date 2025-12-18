@@ -31,8 +31,7 @@ with tab2:
     render_summary_tab()
 
 with tab3:
-    st.write("### Top Countries by Crime Index")
-    # render_top_countries_crime_index()
+    render_top_countries_crime_index()
 
 
 

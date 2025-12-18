@@ -7,6 +7,12 @@ from shapely.ops import triangulate
 from shapely.geometry import Polygon
 import mapbox_earcut as earcut
 from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+## ==============================================================================================================
+## Get Police Force Table from API
+## ==============================================================================================================
 
 def get_forces():
 
@@ -39,6 +45,12 @@ def get_forces():
 
     # Returns dataframe
     return df
+
+
+## ==============================================================================================================
+## Get Neighbourhood Table from API
+## ==============================================================================================================
+
 
 def get_neighbourhood(id):
 
@@ -75,46 +87,35 @@ def get_neighbourhood(id):
     # Returns dataframe
     return df
 
-def get_neighbourhood_boundaries(neighbourhood_id, police_force_ids):
+
+def get_all_neighbourhoods(police_forces):
 
     """
 
-    Defines the function to call the API and retrieve the neighbourhood boundaries data table.
+    Defines the function to get all neighbourhoods for a list of police forces.
 
-    Input: Neighbourhood ID.
+    Input: List of police force IDs.
 
-    Output: Corresponding boundary polygon string.
-    
+    Output: Dataframe containing all neighbourhoods for the given police forces.
+
     """
 
-    #TODO: Change made here - creation of neighbourhoods dataframe within the function
+    # Empty list of neighbourhood dataframes 
     df_neighbourhoods_list =[]
-    for id in police_force_ids:
+
+    # Appends each neighbourhood dataframe to the list
+    for id in police_forces:
         df_neighbourhoods_list.append(get_neighbourhood(id))
+
+    # Unions the list of dataframes into one
     df_neighbourhoods = pd.concat(df_neighbourhoods_list)
 
-    # Finds the input's corresponding police force ID 
-    police_force_id = df_neighbourhoods.loc[df_neighbourhoods["neighbourhood_id"] == neighbourhood_id, "police_force_id"].iloc[0]
+    # Returns dataframe
+    return df_neighbourhoods
 
-    # Defines the connection to the API
-    url = f"https://data.police.uk/api/{police_force_id}/{neighbourhood_id}/boundary"
-    response = requests.get(url)
-    
-    # Raises exception if connection fails
-    if response.status_code != 200:
-        raise Exception(f"API error: {response.status_code}")
-    
-    # Convert responce to json
-    data = response.json()
-
-    # Convert to polygon string format
-    polygon_str = ":".join(
-        f"{float(item['latitude'])},{float(item['longitude'])}"
-        for item in data
-    )
-
-    # Returns polygon
-    return polygon_str
+## ==============================================================================================================
+## Get Street-Level Crimes from API
+## ==============================================================================================================
 
 def get_kml(neighbourhood_id): 
     
@@ -130,6 +131,8 @@ def get_kml(neighbourhood_id):
 
     # Get pathfile from neighbourhood ID
     return f"data/{neighbourhood_id}.kml"
+
+
 
 def get_street_level_crimes(poly_str):
 
@@ -240,7 +243,7 @@ def simplify_polygon(polygon, tolerance=0.0005):
     # Simplifies polygon
     return polygon.simplify(tolerance, preserve_topology=True)
 
-def process_kml_file_to_dataframe(neighbourhood_id):
+def process_kml_file_to_dataframe(police_force_id):
 
     """
 
@@ -253,7 +256,7 @@ def process_kml_file_to_dataframe(neighbourhood_id):
     """
 
     # Get KML filepath
-    kml_path = get_kml(neighbourhood_id)
+    kml_path = get_kml(police_force_id)
 
     # Loads polygon
     polygon = load_polygon_from_kml(kml_path)
@@ -286,12 +289,111 @@ def process_kml_file_to_dataframe(neighbourhood_id):
     # Combines all dataframes
     final_df = pd.concat(all_dfs, ignore_index=True)
 
+    final_df["police_force_id"] = police_force_id
+
     # Returns combined dataframe
     return final_df
+
+def get_crime_for_all_regions(police_forces):
+
+    """ 
+
+    A function to process KML files for all police forces and retrieve street-level crime data.
+
+    Input: List of police force IDs.
+
+    Output: Combined street-level crime dataframe for all police forces.
+
+    """
+
+    # Initialises a list to collect each police force's dataframe
+    all_dfs = []
+
+    # Gets dataframe for each police force
+    for police_force_id in police_forces:
+        df_crimes = process_kml_file_to_dataframe(police_force_id)
+
+        # Add dataframe to list
+        all_dfs.append(df_crimes)
+
+    # Combines all dataframes
+    final_df = pd.concat(all_dfs, ignore_index=True)
+
+    # Returns combined dataframe
+    return final_df
+
+## ===============================================================================================================
+## Get Specific Neighbourhood Table
+## ===============================================================================================================
+def get_specific_neighbourhood(police_force_id, neighbourhood_id):
+
+    """
+
+    A function to get data for a specific neighbourhood.
+
+    Input: Police force ID. Neighbourhood ID.
+
+    Output: Dataframe containing all data for the specific neighbourhood.
+
+
+    """
+
+    # Defines the connection to the API
+    url = f"https://data.police.uk/api/{police_force_id}/{neighbourhood_id}"
+    response = requests.get(url)
+    
+    # Raises exception if connection fails
+    if response.status_code != 200:
+        raise Exception(f"API error: {response.status_code}")
+    
+    # Convert responce to json
+    data = response.json()
+
+    # Converts json to dataframe
+    df = pd.json_normalize(data)
+
+    # Returns dataframe
+    return df
+    
+    
+def get_specific_neighnourhoods_from_police_force(police_force_id, df_neighbourhoods):
+
+    """
+
+    A function to get all specific neighbourhoods for a police force ID.
+
+    Input: Police force ID. Neighbourhoods dataframe.
+
+    Output: Dataframe containing all neighbourhoods for the specific police force ID.
+
+    """
+
+    # Initiates empty list to collect dataframes
+    specific_neighbourhood_list = []
+
+    # Loops through all neighbourhood ID's for the specific police force ID
+    for neighbourhood_id in df_neighbourhoods["neighbourhood_id"][df_neighbourhoods["police_force_id"] == police_force_id]:
+
+        # Calls the API and gets the dataframe
+        df = get_specific_neighbourhood(police_force_id, neighbourhood_id)
+
+        # Appends dataframe to the list
+        specific_neighbourhood_list.append(df)
+
+    # Unions the list of dataframes into one
+    df = pd.concat(specific_neighbourhood_list, ignore_index=True)
+
+    # Adds police force ID column
+    df["police_force_id"] = police_force_id
+
+    # Returns datatframe
+    return df
 
 ## ==============================================================================================================
 ## Cleaning
 ## ==============================================================================================================
+
+# == Null Filling Functions ==
 def fill_blank_outcome_status(df):
 
     """
@@ -310,6 +412,8 @@ def fill_blank_outcome_status(df):
     # Returns dataframe
     return df
 
+# == Duplicate Removal Functions ==
+
 def remove_duplicates(df):
     if "id" in df.columns:
         return df.drop_duplicates(subset=["id"]).reset_index(drop=True)
@@ -317,6 +421,8 @@ def remove_duplicates(df):
     subset = [c for c in ["latitude", "longitude", "month", "category"] if c in df.columns]
     return df.drop_duplicates(subset=subset).reset_index(drop=True)
 
+
+# == Seperate Columns Extraction Functions ==
 def extract_coordinates_and_street(df):
 
     """
@@ -361,6 +467,50 @@ def extract_date_components(df):
     # Returns dataframe
     return df
 
+## == Main Cleaning Functions ==
+def clean_population(pop):
+
+    """
+
+    A function to clean the population column.
+
+    Input: Population.
+
+    Output: Cleaned population.
+
+    """
+
+    # Removes m from population values
+    pop = pop.replace("m", "")
+
+    # Converts population to a float
+    pop = float(pop)
+
+    # Changes decimal to millions
+    pop = pop * 1000000
+
+    # Returns cleaned population
+    return int(pop)
+
+
+def clean_population_df(df_population):
+
+    """
+
+    A function to clean the population dataframe.
+
+    Input: Population dataframe.
+
+    Output: Cleaned population dataframe.
+
+    """
+
+    # Cleans population column
+    df_population["population"] = df_population["population"].apply(clean_population)
+
+    # Returns cleaned dataframe
+    return df_population
+
 def cleaning(df):
 
     """
@@ -393,35 +543,20 @@ def cleaning(df):
 if __name__ == "__main__":
     # Example: Get forces
     forces_df = get_forces()
+    forces_df.to_csv("forces.csv")
     print("Police Forces:")
     print(forces_df.head())
+# Cleaned population csv
+df_population = clean_population_df(pd.read_csv("data/population_data.csv"))
+df_population.to_csv("cleaned_population.csv",index=False)
+# ## ==== Defining Police Forces List for Testing ====
+# police_forces = ["bedfordshire", "hertfordshire", "thames-valley"]
 
-    # Example: Get neighbourhoods for a specific force
-    neighbourhoods_df = get_neighbourhood("leicestershire")
-    print("\nNeighbourhoods in Leicestershire:")
-    print(neighbourhoods_df.head())
-
-    # Example: Get neighbourhood boundaries
-    boundary_str = get_neighbourhood_boundaries("NC04", ["leicestershire"])
-    print("\nBoundary String for NC04:")
-    print(boundary_str)
-
-    # Example: Process KML file to get street-level crimes
-    crimes_df = process_kml_file_to_dataframe("leicestershire")
-    print("\nStreet-level Crimes in Leicestershire:")
-    print(crimes_df.head())
-
-    # crimes_df.to_csv(
-    # "raw_leicestershire_street_level_crimes.csv",
-    # index=False
-    # )
-
-    ## Example: Clean the crimes dataframe
-    cleaned_crimes_df = cleaning(crimes_df)
-    print("\nCleaned Street-level Crimes in Leicestershire:")
-    print(cleaned_crimes_df.head())
-    cleaned_crimes_df.to_csv(
-    "leicestershire_street.csv",
-    index=False
-    )
+# # == Get Crime frame for all regions ==
+# df_crimes = get_crime_for_all_regions(police_forces)
+# df_crimes = cleaning(df_crimes)
+# print("Crime Dataframe:")
+# print(df_crimes.head())
+# # Save df_crimes to CSV
+# df_crimes.to_csv("test_crime_data.csv", index=False)    
 

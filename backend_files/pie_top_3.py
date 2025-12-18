@@ -1,11 +1,8 @@
 import pandas as pd
 ## ===================================================================================
 ## Pie chart of top 3 crime types
-#TODO: Function to plot pie chart
-#TODO: Function to send prompt to LLM to generate analysis of the pie chart
 ## ===================================================================================
 
-#TODO: Function to take neighbourhood id, calculate percentages of top 3 crime types
 def get_crime_types_summary(id = None, csv_data = None):
     """
     Given neighbourhood id, return the proportions of top 3 crime types in that neighbourhood,
@@ -46,5 +43,5 @@ def get_crime_types_summary(id = None, csv_data = None):
 
 if __name__ == "__main__":
     # Test data table for pie chart
-    df_summary = get_crime_types_summary(csv_data='backend_files/street_data/leicestershire_street.csv')
+    df_summary = get_crime_types_summary(csv_data='backend_files/street_data/test_crime_data.csv')
     print(df_summary)

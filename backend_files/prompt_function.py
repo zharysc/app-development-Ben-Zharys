@@ -72,13 +72,18 @@ def generate_chart_analysis_summary(data_fetcher, id=None, csv_data='backend_fil
     return summary
 
 if __name__ == "__main__":
-    prompt = "Explain the theory of relativity in simple terms. 10 words."
-    response = get_completion(prompt)
-    print(response)
+    # prompt = "Explain the theory of relativity in simple terms. 10 words."
+    # response = get_completion(prompt)
+    # print(response)
+
+    # print("="*40)
+    # print("generate_chart_analysis_prompt test")
+    # from backend_files.pie_top_3 import get_crime_types_summary
+    # summary = generate_chart_analysis_summary(data_fetcher=get_crime_types_summary, csv_data='street_data/leicestershire_street.csv', word_limit=30)
+    # print(summary)
 
     print("="*40)
-    print("generate_chart_analysis_prompt test")
-    from backend_files.pie_top_3 import get_crime_types_summary
-    summary = generate_chart_analysis_summary(data_fetcher=get_crime_types_summary, csv_data='street_data/leicestershire_street.csv', word_limit=30)
+    print("Prompt test for Population")
+    from population_functions import get_population_summary
+    summary = generate_chart_analysis_summary(data_fetcher=get_population_summary, csv_data='data/cleaned_population.csv', word_limit=30)
     print(summary)
-
